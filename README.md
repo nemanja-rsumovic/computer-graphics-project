@@ -2,7 +2,7 @@
 Project for the course of [Computer Graphics](https://matf-racunarska-grafika.github.io/) written in **C/C++** and **OpenGL**.
 
 ## Run
-1. `git clone https://github.com/nemanja-rsumovic/computer-graphics---project.git`
+1. `git clone https://github.com/nemanja-rsumovic/computer-graphics-project.git`
 2. CLion -> Open -> path/to/my/project_base
 3. ALT+SHIFT+F10 -> project_base -> run
 
@@ -34,6 +34,13 @@ Project for the course of [Computer Graphics](https://matf-racunarska-grafika.gi
 * 2
 * -- navesti --
 
-## Resources:
+## Resources
 * [project base](https://github.com/matf-racunarska-grafika/project_base)
 * [LearnOpenGL](https://learnopengl.com/)
+
+## Course details
+* Professor: Vesna Marinković
+* Assistant: Marko Spasić
+* Student: Nemanja Ršumović
+* Academic year: 2022-23
+
