@@ -15,16 +15,16 @@ Project for the course of [Computer Graphics](https://matf-racunarska-grafika.gi
 | --dopuniti-- | --dopuniti--
 
 ## Preview
-[video](-- navesti --)
+[video](--navesti--)
 -- dodati --
 
 ## Topics covered
 1. `Group A`
-... --navesti --
+  * --navesti --
 2. `Group B`
-... --navesti --
+  * --navesti --
 3. `Required`
-... --navesti --
+  * --navesti --
 
 ## Models
 * 1
