@@ -368,7 +368,7 @@ vector<std::string> faces
 
             model = glm::translate(model, glm::vec3(pointLightPositions[i].x, pointLightPositions[i].y, pointLightPositions[i].z ));
             if (i == 0)
-                model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
+                model = glm::scale(model, glm::vec3(1.2f, 1.2f, 1.2f));
             else
                 model = glm::scale(model, glm::vec3(0.4f*(i+2)/(i+1), 0.4f*(i+2)/(i+1), 0.4f*(i+2)/(i+1)));
             lightingShader.setMat4("model", model);
@@ -533,7 +533,7 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
     // blinn
     if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS && !blinnKeyPressed)
     {
-        blinn = blinn;
+        blinn = !blinn;
         blinnKeyPressed = true;
     }
     if (glfwGetKey(window, GLFW_KEY_B) == GLFW_RELEASE)
