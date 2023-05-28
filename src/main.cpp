@@ -29,7 +29,7 @@ unsigned int loadTexture(char const * path, bool gammaCorrection);
 
 unsigned int loadCubemap(vector<std::string> faces);
 
-void setLights(Shader shader, glm::vec3 pointLightPositions[4]);
+void setLights(Shader shader);
 
 
 // settings
@@ -177,19 +177,24 @@ int main() {
 
     // build and compile shaders
     // -------------------------
-    __attribute__((unused)) Shader ourShader(FileSystem::getPath("resources/shaders/model_lighting.vs").c_str(), FileSystem::getPath("resources/shaders/model_lighting.fs").c_str());
-    Shader skyboxShader(FileSystem::getPath("resources/shaders/skybox.vs").c_str(), FileSystem::getPath("resources/shaders/skybox.fs").c_str());
-    Shader lightingShader(FileSystem::getPath("resources/shaders/lights.vs").c_str(), FileSystem::getPath("resources/shaders/lights.fs").c_str());
-    Shader blendingShader( FileSystem::getPath("resources/shaders/blending1.vs").c_str(), FileSystem::getPath("resources/shaders/blending1.fs").c_str());
-
+    Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
+    Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
+    Shader lightingShader("resources/shaders/lights.vs", "resources/shaders/lights.fs");
+    Shader blendingShader( "resources/shaders/blending1.vs", "resources/shaders/blending1.fs");
+    Shader boxShader("resources/shaders/kocka.vs", "resources/shaders/kocka.fs");
     // load models
     // -----------
-    Model ourModel("resources/objects/backpack/backpack.obj", true);
-    ourModel.SetShaderTextureNamePrefix("material.");
+    //Model ourModel("resources/objects/backpack/backpack.obj");
+    //ourModel.SetShaderTextureNamePrefix("material.");
 
     Model island(FileSystem::getPath("resources/objects/island/island.obj"));
     island.SetShaderTextureNamePrefix("material.");
-   // Model island2(FileSystem::getPath("resources/objects/island2/island2.obj"));
+
+    Model island2(FileSystem::getPath("resources/objects/deathstar/death star.obj"));
+    island2.SetShaderTextureNamePrefix("material.");
+
+    Model rock(FileSystem::getPath("resources/objects/new/rock_002_preview.obj"));
+    rock.SetShaderTextureNamePrefix("material.");
    // Model alien (FileSystem::getPath("resources/objects/alien/alien.obj"));
 
     PointLight& pointLight = programState->pointLight;
@@ -251,6 +256,50 @@ int main() {
     };
 
 
+    float boxVertices[] = {
+            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+            0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
+            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+
+            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+            0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
+            0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+            0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+
+            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+            -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+            -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+
+            0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+            0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+            0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+            0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+            0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+
+            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+            0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
+            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+
+            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+            0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
+            0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+            0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
+    };
+
     glm::vec3 pointLightPositions[] = {
         glm::vec3(10.0f, 0.0f, 30.0f),  //main island + stadium
         glm::vec3(7.0f, 10.0f, -10.0f), //rotate + bloom na ovaj
@@ -281,12 +330,24 @@ int main() {
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glBindVertexArray(0);
-    vector<glm::vec3> blendings
-            {
-                    glm::vec3(-75.0f, 15.0f, -3.0f),
-                    /*glm::vec3( 50.0f, 30.0f, 35.0f),
-                    glm::vec3( 25.0f, 10.0f, 0.0f) */
-            };
+
+    glm::vec3 blendingPosition(-75.0f, 15.0f, -3.0f);
+
+    // box VAO
+    unsigned int boxVBO, boxVAO;
+    glGenVertexArrays(1, &boxVAO);
+    glGenBuffers(1, &boxVBO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, boxVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(boxVertices), boxVertices, GL_STATIC_DRAW);
+
+    glBindVertexArray(boxVAO);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)nullptr);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     // skybox VAO
     unsigned int skyboxVAO, skyboxVBO;
@@ -298,17 +359,20 @@ int main() {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)nullptr);
 
+
     // load textures
     // -------------
-vector<std::string> faces
-    {
-        FileSystem::getPath("resources/textures/skybox/right"),
-        FileSystem::getPath("resources/textures/skybox/left"),
-        FileSystem::getPath("resources/textures/skybox/bottom"),
-        FileSystem::getPath("resources/textures/skybox/top"),
-        FileSystem::getPath("resources/textures/skybox/front"),
-        FileSystem::getPath("resources/textures/skybox/back")
-    };
+    unsigned int boxTexture = loadTexture(FileSystem::getPath("resources/textures/container.jpg").c_str(), true);
+
+    vector<std::string> faces
+        {
+            FileSystem::getPath("resources/textures/skybox/right"),
+            FileSystem::getPath("resources/textures/skybox/left"),
+            FileSystem::getPath("resources/textures/skybox/bottom"),
+            FileSystem::getPath("resources/textures/skybox/top"),
+            FileSystem::getPath("resources/textures/skybox/front"),
+            FileSystem::getPath("resources/textures/skybox/back")
+        };
     unsigned int cubemapTexture = loadCubemap(faces);
 
     // shader configuration
@@ -316,10 +380,23 @@ vector<std::string> faces
 
     skyboxShader.use();
     skyboxShader.setInt("skybox", 0);
+
     lightingShader.use();
     lightingShader.setInt("material.diffuse1", 0);
     lightingShader.setInt("material.specular1", 1);
 
+    boxShader.use();
+    boxShader.setInt("texture1", 0);
+    //boxShader.setInt("material.ambient", 0);
+    //boxShader.setInt("material.diffuse", 1);
+    //boxShader.setInt("material.specular", 2);
+
+    // box texture
+    //stbi_set_flip_vertically_on_load(true);
+    //unsigned int boxDiffuse = loadTexture(FileSystem::getPath("resources/textures/glass.jpg").c_str(), true);
+    //unsigned int boxSpecular = loadTexture(FileSystem::getPath("resources/textures/glass.jpg").c_str(), true);
+    //unsigned int boxAmbient = loadTexture(FileSystem::getPath("resources/textures/glass.jpg").c_str(), true);
+    //stbi_set_flip_vertically_on_load(false);
 
     // draw in wireframe
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -334,6 +411,8 @@ vector<std::string> faces
     stbi_set_flip_vertically_on_load(true);
     blendingShader.use();
     blendingShader.setInt("texture1", 0);
+
+
 
 
     // render loop
@@ -356,7 +435,7 @@ vector<std::string> faces
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // don't forget to enable shader before setting uniforms
-       /* ourShader.use();
+        ourShader.use();
         ourShader.setInt("material.texture_diffuse1",0);
         ourShader.setInt("material.texture_specular1",1);
         pointLight.position = glm::vec3(4.0 * cos(currentFrame), 4.0f, 4.0 * sin(currentFrame));
@@ -369,14 +448,14 @@ vector<std::string> faces
         ourShader.setFloat("pointLight.quadratic", pointLight.quadratic);
         ourShader.setVec3("viewPosition", programState->camera.Position);
         ourShader.setFloat("material.shininess", 32.0f);
-*/
+
         //setting light
         lightingShader.use();
         lightingShader.setVec3("viewPos", programState->camera.Position);
         lightingShader.setFloat("material.shininess", 32.0f);
    //     if(programState->zavrsenGame)
       // lightingShader.setBool("upali", true);
-       setLights(lightingShader, pointLightPositions);
+       setLights(lightingShader);
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom),
@@ -401,14 +480,13 @@ vector<std::string> faces
         glBindVertexArray(transparentVAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, transparentTexture);
-        for (const glm::vec3& blending : blendings)
-        {
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, blending);
-            model = glm::scale(model,glm::vec3(50.0f));
-            blendingShader.setMat4("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-        }
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, blendingPosition);
+        model = glm::scale(model,glm::vec3(50.0f));
+        blendingShader.setMat4("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
 
 
         lightingShader.use();
@@ -419,18 +497,25 @@ vector<std::string> faces
 
         float j = 1.0f;
         for (unsigned int i = 0; i < 5; i++){
+            if(i==3)
+                continue;
             model = glm::mat4(1.0f);
             if (i == 1)
                 model = glm:: rotate(model, (float)glfwGetTime()/2, glm::vec3(pointLightPositions[i].x , pointLightPositions[i].y + 55.0f, pointLightPositions[i].z));
-            if (i == 3)
-                model = glm:: rotate(model, (float)glfwGetTime()/2, glm::vec3(pointLightPositions[i].x, pointLightPositions[i].y + 15.0f , pointLightPositions[i].z));
+            /*if (i == 3) {
+                model = glm::translate(model, glm::vec3(10.0f, 0.0f, 30.0f));
+                //model = glm:: rotate(model, (float)glfwGetTime()/2, glm::vec3(pointLightPositions[i].x, pointLightPositions[i].y + 15.0f , pointLightPositions[i].z));
+                model = glm::scale(model, glm::vec3(1.0f));
+            }*/
             if (i == 4)
                 model = glm:: rotate(model, (float)glfwGetTime(), glm::vec3(pointLightPositions[i].x, pointLightPositions[i].y + 115.0f , pointLightPositions[i].z));
 
-            model = glm::translate(model, glm::vec3(pointLightPositions[i].x, pointLightPositions[i].y, pointLightPositions[i].z ));
-            if (i == 0)
+            if (i!=3)
+                model = glm::translate(model, glm::vec3(pointLightPositions[i].x, pointLightPositions[i].y, pointLightPositions[i].z ));
+            if (i == 0) {
+                continue;
                 model = glm::scale(model, glm::vec3(1.2f, 1.2f, 1.2f));
-            else
+            }else
                 model = glm::scale(model, glm::vec3(0.4f*(j+2)/(j+1), 0.4f*(j+2)/(j+1), 0.4f*(j+2)/(j+1)));
             lightingShader.setMat4("model", model);
             island.Draw(lightingShader);
@@ -438,18 +523,43 @@ vector<std::string> faces
             j+=1.0f;
         }
 
-         /*   model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(-27.0f,5.0f,7.0f));
-            model = glm::scale(model, glm::vec3(0.05f,0.05f,0.05f));
+            //island2
+            model = glm::mat4(1.0f);
+            model = glm:: rotate(model, (float)glfwGetTime()/2, glm::vec3(pointLightPositions[3].x, pointLightPositions[3].y + 15.0f , pointLightPositions[3].z));
+            //model = glm::translate(model, glm::vec3(10.0f, 0.0f, 30.0f));
+            model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
             lightingShader.setMat4("model", model);
             island2.Draw(lightingShader);
-            alien.Draw(lightingShader);
 
-          */
+            //moss_rock
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(20.0f, sin(glfwGetTime()), 30.0f));
+            model = glm::scale(model, glm::vec3(80.0f));
+            lightingShader.setMat4("model", model);
+            rock.Draw(lightingShader);
+
+
+        // box
+        boxShader.use();
+        setLights(boxShader);
+        boxShader.setFloat("material.shininess", 32.0f);
+        boxShader.setMat4("projection", projection);
+        boxShader.setMat4("view", view);
+
+        glBindVertexArray(boxVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, boxTexture);
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(35.0f, 8.9f, 25.2f));
+        model = glm::scale(model, glm::vec3(3.0f));
+        boxShader.setMat4("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
 
 
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+
         skyboxShader.use();
         view = glm::mat4(glm::mat3(programState->camera.GetViewMatrix())); // remove translation from the view matrix
         skyboxShader.setMat4("view", view);
@@ -488,6 +598,9 @@ vector<std::string> faces
 
     glDeleteVertexArrays(1, &transparentVAO);
     glDeleteBuffers(1, &transparentVBO);
+
+    glDeleteVertexArrays(1, &boxVAO);
+    glDeleteBuffers(1, &boxVBO);
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
@@ -689,7 +802,15 @@ unsigned int loadCubemap(vector<std::string> faces)
     return textureID;
 }
 
-void setLights(Shader lightingShader, glm::vec3 pointLightPositions[]) {
+void setLights(Shader lightingShader) {
+
+    glm::vec3 pointLightPositions[] = {
+            glm::vec3(10.0f, 0.0f, 30.0f),  //main island + stadium
+            glm::vec3(7.0f, 10.0f, -10.0f), //rotate + bloom na ovaj
+            glm::vec3(35.0f, 5.0f, 25.0f),
+            glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(20.0f, 5.0f, 0.0f),
+    };
 
     // directional light
     lightingShader.setVec3("dirLight.direction", 0.0f, -1.0f, 0.0f);
@@ -734,8 +855,8 @@ void setLights(Shader lightingShader, glm::vec3 pointLightPositions[]) {
     lightingShader.setVec3("spotLight.direction", programState->camera.Front);
     lightingShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
     if(spotLightTF){
-        lightingShader.setVec3("spotLight.diffuse", 10.0f, 10.0f, 10.0f);
-        lightingShader.setVec3("spotLight.specular", 10.0f, 10.0f, 10.0f);
+        lightingShader.setVec3("spotLight.diffuse", 30.0f, 30.0f, 30.0f);
+        lightingShader.setVec3("spotLight.specular", 30.0f, 30.0f, 30.0f);
 
     }
     else{
