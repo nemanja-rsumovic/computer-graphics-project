@@ -29,6 +29,8 @@ unsigned int loadTexture(char const * path, bool gammaCorrection);
 
 unsigned int loadCubemap(vector<std::string> faces);
 
+void renderQuad();
+
 void setLights(Shader shader);
 
 
@@ -108,6 +110,9 @@ ProgramState *programState;
 void DrawImGui(ProgramState *pState);
 
 // globalne promenljive
+bool hdr = false;
+bool bloom = false;
+float exposure = 0.5f;
 bool spotLightTF = false;
 bool blinn = true;
 bool blinnKeyPressed = false;
@@ -182,6 +187,10 @@ int main() {
     Shader lightingShader("resources/shaders/lights.vs", "resources/shaders/lights.fs");
     Shader blendingShader( "resources/shaders/blending1.vs", "resources/shaders/blending1.fs");
     Shader boxShader("resources/shaders/kocka.vs", "resources/shaders/kocka.fs");
+    Shader hdrShader("resources/shaders/hdr.vs", "resources/shaders/hdr.fs");
+    Shader bloomShader("resources/shaders/bloom.vs", "resources/shaders/bloom.fs");
+
+
     // load models
     // -----------
     //Model ourModel("resources/objects/backpack/backpack.obj");
@@ -190,8 +199,8 @@ int main() {
     Model island(FileSystem::getPath("resources/objects/island/island.obj"));
     island.SetShaderTextureNamePrefix("material.");
 
-    Model island2(FileSystem::getPath("resources/objects/deathstar/death star.obj"));
-    island2.SetShaderTextureNamePrefix("material.");
+    Model deathstar(FileSystem::getPath("resources/objects/deathstar/death star.obj"));
+    deathstar.SetShaderTextureNamePrefix("material.");
 
     Model rock(FileSystem::getPath("resources/objects/new/rock_002_preview.obj"));
     rock.SetShaderTextureNamePrefix("material.");
@@ -378,15 +387,32 @@ int main() {
     // shader configuration
     // --------------------
 
-    skyboxShader.use();
-    skyboxShader.setInt("skybox", 0);
-
     lightingShader.use();
     lightingShader.setInt("material.diffuse1", 0);
     lightingShader.setInt("material.specular1", 1);
 
     boxShader.use();
     boxShader.setInt("texture1", 0);
+
+
+    skyboxShader.use();
+    skyboxShader.setInt("skybox", 0);
+    stbi_set_flip_vertically_on_load(false);
+
+    unsigned int transparentTexture = loadTexture(FileSystem::getPath("resources/textures/blending.png").c_str(),true);
+    stbi_set_flip_vertically_on_load(true);
+    blendingShader.use();
+    blendingShader.setInt("texture1", 0);
+
+    bloomShader.use();
+    bloomShader.setInt("image", 0);
+
+    hdrShader.use();
+    hdrShader.setInt("hdrBuffer", 0);
+    hdrShader.setInt("bloomBlur", 1);
+
+
+
     //boxShader.setInt("material.ambient", 0);
     //boxShader.setInt("material.diffuse", 1);
     //boxShader.setInt("material.specular", 2);
@@ -405,14 +431,58 @@ int main() {
     ourShader.setInt("material.texture_diffuse1",0);
     ourShader.setInt("material.texture_specular1",1);
 */
+    //hdr
+    unsigned int hdrFBO;
+    glGenFramebuffers(1, &hdrFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+
+    unsigned int colorBuffers[2];
+    glGenTextures(2, colorBuffers);
+    for (unsigned int i = 0; i < 2; i++)
+    {
+        glBindTexture(GL_TEXTURE_2D, colorBuffers[i]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        // attach texture to framebuffer
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, colorBuffers[i], 0);
+    }
+
+    // create and attach depth buffer (renderbuffer)
+    unsigned int rboDepth;
+    glGenRenderbuffers(1, &rboDepth);
+    glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+    // color attachments we'll use for rendering
+    unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    glDrawBuffers(2, attachments);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "Framebuffer not complete!" << std::endl;
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
-    unsigned int transparentTexture = loadTexture(FileSystem::getPath("resources/textures/blending.png").c_str(),true);
-    stbi_set_flip_vertically_on_load(true);
-    blendingShader.use();
-    blendingShader.setInt("texture1", 0);
+    // ping-pong-framebuffer for blurring
+    unsigned int pingpongFBO[2];
+    unsigned int pingpongColorbuffers[2];
+    glGenFramebuffers(2, pingpongFBO);
+    glGenTextures(2, pingpongColorbuffers);
+    for (unsigned int i = 0; i < 2; i++)
+    { glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[i]);
+      glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[i]);
 
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pingpongColorbuffers[i], 0);
 
+      if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "Framebuffer not complete!" << std::endl;
+    }
 
 
     // render loop
@@ -432,6 +502,9 @@ int main() {
         // render
         // ------
         glClearColor(programState->clearColor.r, programState->clearColor.g, programState->clearColor.b, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // don't forget to enable shader before setting uniforms
@@ -523,13 +596,13 @@ int main() {
             j+=1.0f;
         }
 
-            //island2
+            //deathstar
             model = glm::mat4(1.0f);
             model = glm:: rotate(model, (float)glfwGetTime()/2, glm::vec3(pointLightPositions[3].x, pointLightPositions[3].y + 15.0f , pointLightPositions[3].z));
             //model = glm::translate(model, glm::vec3(10.0f, 0.0f, 30.0f));
             model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
             lightingShader.setMat4("model", model);
-            island2.Draw(lightingShader);
+            deathstar.Draw(lightingShader);
 
             //moss_rock
             model = glm::mat4(1.0f);
@@ -556,7 +629,6 @@ int main() {
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
-
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 
@@ -571,6 +643,37 @@ int main() {
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
         glDepthFunc(GL_LESS); // set depth function back to default
+
+        // ping-pong
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        bool horizontal = true, first_iteration = true;
+        unsigned int amount = 10;
+        bloomShader.use();
+        for (unsigned int i = 0; i < amount; i++)
+        {   glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
+            bloomShader.setInt("horizontal", horizontal);
+            glBindTexture(GL_TEXTURE_2D, first_iteration ? colorBuffers[1] : pingpongColorbuffers[!horizontal]);
+
+            renderQuad();
+
+            horizontal = !horizontal;
+            if (first_iteration)
+                first_iteration = false;
+        }
+
+        // hdr&bloom
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        hdrShader.use();
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
+        hdrShader.setBool("hdr", hdr);
+        hdrShader.setBool("bloom",bloom);
+        hdrShader.setFloat("exposure", exposure);
+        renderQuad();
+
 
 
         if (programState->ImGuiEnabled)
@@ -593,14 +696,17 @@ int main() {
      // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
 
-    glDeleteVertexArrays(1, &skyboxVAO);
-    glDeleteBuffers(1, &skyboxVAO);
+
+
+
+    glDeleteVertexArrays(1, &boxVAO);
+    glDeleteBuffers(1, &boxVBO);
 
     glDeleteVertexArrays(1, &transparentVAO);
     glDeleteBuffers(1, &transparentVBO);
 
-    glDeleteVertexArrays(1, &boxVAO);
-    glDeleteBuffers(1, &boxVBO);
+    glDeleteVertexArrays(1, &skyboxVAO);
+    glDeleteBuffers(1, &skyboxVAO);
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
@@ -691,6 +797,34 @@ void DrawImGui(ProgramState *pState) {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
+
+unsigned int quadVAO = 0;
+unsigned int quadVBO;
+void renderQuad(){
+    if (quadVAO == 0){
+        float quadVertices[] = {
+                // positions        // texture Coords
+                -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+                -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+                1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+                1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+        };
+        // setup plane VAO
+        glGenVertexArrays(1, &quadVAO);
+        glGenBuffers(1, &quadVBO);
+        glBindVertexArray(quadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    }
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
+}
+
 void key_callback(GLFWwindow *window, int key, int __attribute__((unused))scancode, int action, int __attribute__((unused))mods) {
 
     // spotLight
@@ -708,15 +842,34 @@ void key_callback(GLFWwindow *window, int key, int __attribute__((unused))scanco
         }
     }
     // blinn
-    if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS && !blinnKeyPressed)
-    {
+    if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS && !blinnKeyPressed){
         blinn = !blinn;
         blinnKeyPressed = true;
     }
-    if (glfwGetKey(window, GLFW_KEY_B) == GLFW_RELEASE)
-    {
+
+    if (glfwGetKey(window, GLFW_KEY_B) == GLFW_RELEASE){
         blinnKeyPressed = false;
     }
+
+
+    // hdr
+    if (key == GLFW_KEY_H && action == GLFW_PRESS){
+        hdr = !hdr;
+    }
+
+    // bloom
+    if (key == GLFW_KEY_L && action == GLFW_PRESS){
+        bloom = !bloom;
+    }
+
+    // exposure
+    if (key == GLFW_KEY_E && action == GLFW_PRESS){
+        exposure += 0.2f;
+    }
+    else if (key == GLFW_KEY_E && action == GLFW_PRESS)    {
+        exposure -= 0.2f;
+    }
+     
 }
 
 // utility function for loading a 2D texture from file
