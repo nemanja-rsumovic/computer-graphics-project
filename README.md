@@ -46,6 +46,7 @@ Project for the course of [Computer Graphics](https://matf-racunarska-grafika.gi
 ## Resources
 * [project base](https://github.com/matf-racunarska-grafika/project_base)
 * [LearnOpenGL](https://learnopengl.com/)
+* [previous course projects](https://github.com/matf-racunarska-grafika-galerija)
 
 ## Course details
 * Professor: Vesna Marinković
