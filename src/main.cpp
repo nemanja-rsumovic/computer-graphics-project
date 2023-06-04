@@ -202,7 +202,7 @@ int main() {
     Model deathstar(FileSystem::getPath("resources/objects/deathstar/death star.obj"));
     deathstar.SetShaderTextureNamePrefix("material.");
 
-    Model rock(FileSystem::getPath("resources/objects/new/rock_002_preview.obj"));
+    Model rock(FileSystem::getPath("resources/objects/rock/rock_002_preview.obj"));
     rock.SetShaderTextureNamePrefix("material.");
    // Model alien (FileSystem::getPath("resources/objects/alien/alien.obj"));
 
@@ -596,21 +596,27 @@ int main() {
             j+=1.0f;
         }
 
-            //deathstar
-            model = glm::mat4(1.0f);
-            model = glm:: rotate(model, (float)glfwGetTime()/2, glm::vec3(pointLightPositions[3].x, pointLightPositions[3].y + 15.0f , pointLightPositions[3].z));
-            //model = glm::translate(model, glm::vec3(10.0f, 0.0f, 30.0f));
-            model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
-            lightingShader.setMat4("model", model);
-            deathstar.Draw(lightingShader);
+        //deathstar
+        model = glm::mat4(1.0f);
+        model = glm:: rotate(model, (float)glfwGetTime()/2, glm::vec3(pointLightPositions[3].x, pointLightPositions[3].y + 15.0f , pointLightPositions[3].z));
+        //model = glm::translate(model, glm::vec3(10.0f, 0.0f, 30.0f));
+        model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
+        lightingShader.setMat4("model", model);
+        deathstar.Draw(lightingShader);
 
-            //moss_rock
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(20.0f, sin(glfwGetTime()), 30.0f));
-            model = glm::scale(model, glm::vec3(80.0f));
-            lightingShader.setMat4("model", model);
-            rock.Draw(lightingShader);
+        //moss_rock
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(20.0f, sin(glfwGetTime()), 30.0f));
+        model = glm::scale(model, glm::vec3(80.0f));
+        lightingShader.setMat4("model", model);
+        rock.Draw(lightingShader);
 
+        //added another one
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(20.0f, cos(glfwGetTime())*2, -10.0f));
+        model = glm::scale(model, glm::vec3(60.0f));
+        lightingShader.setMat4("model", model);
+        rock.Draw(lightingShader);
 
         // box
         boxShader.use();
@@ -851,7 +857,6 @@ void key_callback(GLFWwindow *window, int key, int __attribute__((unused))scanco
         blinnKeyPressed = false;
     }
 
-
     // hdr
     if (key == GLFW_KEY_H && action == GLFW_PRESS){
         hdr = !hdr;
@@ -866,7 +871,7 @@ void key_callback(GLFWwindow *window, int key, int __attribute__((unused))scanco
     if (key == GLFW_KEY_E && action == GLFW_PRESS){
         exposure += 0.2f;
     }
-    else if (key == GLFW_KEY_E && action == GLFW_PRESS)    {
+    else if (key == GLFW_KEY_R && action == GLFW_PRESS) {
         exposure -= 0.2f;
     }
      
