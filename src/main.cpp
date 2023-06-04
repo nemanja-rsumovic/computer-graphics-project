@@ -193,8 +193,6 @@ int main() {
 
     // load models
     // -----------
-    //Model ourModel("resources/objects/backpack/backpack.obj");
-    //ourModel.SetShaderTextureNamePrefix("material.");
 
     Model island(FileSystem::getPath("resources/objects/island/island.obj"));
     island.SetShaderTextureNamePrefix("material.");
@@ -204,7 +202,6 @@ int main() {
 
     Model rock(FileSystem::getPath("resources/objects/rock/rock_002_preview.obj"));
     rock.SetShaderTextureNamePrefix("material.");
-   // Model alien (FileSystem::getPath("resources/objects/alien/alien.obj"));
 
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
@@ -373,8 +370,7 @@ int main() {
     // -------------
     unsigned int boxTexture = loadTexture(FileSystem::getPath("resources/textures/container.jpg").c_str(), true);
 
-    vector<std::string> faces
-        {
+    vector<std::string> faces {
             FileSystem::getPath("resources/textures/skybox/right"),
             FileSystem::getPath("resources/textures/skybox/left"),
             FileSystem::getPath("resources/textures/skybox/bottom"),
@@ -411,26 +407,6 @@ int main() {
     hdrShader.setInt("hdrBuffer", 0);
     hdrShader.setInt("bloomBlur", 1);
 
-
-
-    //boxShader.setInt("material.ambient", 0);
-    //boxShader.setInt("material.diffuse", 1);
-    //boxShader.setInt("material.specular", 2);
-
-    // box texture
-    //stbi_set_flip_vertically_on_load(true);
-    //unsigned int boxDiffuse = loadTexture(FileSystem::getPath("resources/textures/glass.jpg").c_str(), true);
-    //unsigned int boxSpecular = loadTexture(FileSystem::getPath("resources/textures/glass.jpg").c_str(), true);
-    //unsigned int boxAmbient = loadTexture(FileSystem::getPath("resources/textures/glass.jpg").c_str(), true);
-    //stbi_set_flip_vertically_on_load(false);
-
-    // draw in wireframe
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-   /* ourShader.use();
-    ourShader.setInt("material.texture_diffuse1",0);
-    ourShader.setInt("material.texture_specular1",1);
-*/
     //hdr
     unsigned int hdrFBO;
     glGenFramebuffers(1, &hdrFBO);
@@ -438,10 +414,9 @@ int main() {
 
     unsigned int colorBuffers[2];
     glGenTextures(2, colorBuffers);
-    for (unsigned int i = 0; i < 2; i++)
-    {
+    for (unsigned int i = 0; i < 2; i++) {
         glBindTexture(GL_TEXTURE_2D, colorBuffers[i]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_FLOAT, nullptr);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -469,19 +444,20 @@ int main() {
     unsigned int pingpongColorbuffers[2];
     glGenFramebuffers(2, pingpongFBO);
     glGenTextures(2, pingpongColorbuffers);
-    for (unsigned int i = 0; i < 2; i++)
-    { glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[i]);
-      glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[i]);
+    for (unsigned int i = 0; i < 2; i++) {
+        glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[i]);
+        glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[i]);
 
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pingpongColorbuffers[i], 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_FLOAT, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pingpongColorbuffers[i], 0);
 
-      if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        std::cout << "Framebuffer not complete!" << std::endl;
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            std::cout << "Framebuffer not complete!" << std::endl;
+        }
     }
 
 
@@ -526,24 +502,16 @@ int main() {
         lightingShader.use();
         lightingShader.setVec3("viewPos", programState->camera.Position);
         lightingShader.setFloat("material.shininess", 32.0f);
-   //     if(programState->zavrsenGame)
-      // lightingShader.setBool("upali", true);
-       setLights(lightingShader);
+        setLights(lightingShader);
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom),
                                                 (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = programState->camera.GetViewMatrix();
-        //ourShader.setMat4("projection", projection);
-        //ourShader.setMat4("view", view);
+
 
         // render the loaded model
         glm::mat4 model = glm::mat4(1.0f);
- /*       model = glm::translate(model,programState->backpackPosition); // translate it down, so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(programState->backpackScale));    // it's a bit too big for our scene, so scale it down
-        ourShader.setMat4("model", model);
-        ourModel.Draw(ourShader);
-*/
 
         //blending
         blendingShader.use();
@@ -572,24 +540,23 @@ int main() {
         for (unsigned int i = 0; i < 5; i++){
             if(i==3)
                 continue;
+
             model = glm::mat4(1.0f);
+
             if (i == 1)
                 model = glm:: rotate(model, (float)glfwGetTime()/2, glm::vec3(pointLightPositions[i].x , pointLightPositions[i].y + 55.0f, pointLightPositions[i].z));
-            /*if (i == 3) {
-                model = glm::translate(model, glm::vec3(10.0f, 0.0f, 30.0f));
-                //model = glm:: rotate(model, (float)glfwGetTime()/2, glm::vec3(pointLightPositions[i].x, pointLightPositions[i].y + 15.0f , pointLightPositions[i].z));
-                model = glm::scale(model, glm::vec3(1.0f));
-            }*/
+
             if (i == 4)
                 model = glm:: rotate(model, (float)glfwGetTime(), glm::vec3(pointLightPositions[i].x, pointLightPositions[i].y + 115.0f , pointLightPositions[i].z));
 
-            if (i!=3)
-                model = glm::translate(model, glm::vec3(pointLightPositions[i].x, pointLightPositions[i].y, pointLightPositions[i].z ));
+            model = glm::translate(model, glm::vec3(pointLightPositions[i].x, pointLightPositions[i].y, pointLightPositions[i].z ));
+
             if (i == 0) {
                 continue;
                 model = glm::scale(model, glm::vec3(1.2f, 1.2f, 1.2f));
             }else
                 model = glm::scale(model, glm::vec3(0.4f*(j+2)/(j+1), 0.4f*(j+2)/(j+1), 0.4f*(j+2)/(j+1)));
+
             lightingShader.setMat4("model", model);
             island.Draw(lightingShader);
 
@@ -702,9 +669,6 @@ int main() {
      // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
 
-
-
-
     glDeleteVertexArrays(1, &boxVAO);
     glDeleteBuffers(1, &boxVBO);
 
@@ -713,6 +677,7 @@ int main() {
 
     glDeleteVertexArrays(1, &skyboxVAO);
     glDeleteBuffers(1, &skyboxVAO);
+
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
@@ -822,7 +787,7 @@ void renderQuad(){
         glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)nullptr);
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     }
