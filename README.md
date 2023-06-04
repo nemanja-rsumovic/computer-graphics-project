@@ -42,6 +42,7 @@ Project for the course of [Computer Graphics](https://matf-racunarska-grafika.gi
 * [Death Star](https://sketchfab.com/3d-models/death-star-ae5d6c6240aa4c1c8c9efcafc417a343)
 * [Island]()
 * [blending .png](https://pngtree.com/freepng/golden-light-effect-on-transparent-background-with-realistic-sparkles--magic-light--glowing-swirl-light-effect--vector-illustration_4769949.html)
+* [skybox .jpg](https://github.com/matf-racunarska-grafika-galerija/OpenGL_matf_project/tree/main/resources/textures)
 
 ## Resources
 * [project base](https://github.com/matf-racunarska-grafika/project_base)
