@@ -180,7 +180,7 @@ int main() {
     // Blending
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glCullFace(GL_BACK);
+    glCullFace(GL_FRONT);
 
     // build and compile shaders
     // -------------------------
@@ -188,7 +188,6 @@ int main() {
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
     Shader lightingShader("resources/shaders/lights.vs", "resources/shaders/lights.fs");
     Shader blendingShader( "resources/shaders/blending1.vs", "resources/shaders/blending1.fs");
-   // Shader boxShader("resources/shaders/kocka.vs", "resources/shaders/kocka.fs");
     Shader hdrShader("resources/shaders/hdr.vs", "resources/shaders/hdr.fs");
     Shader bloomShader("resources/shaders/blur.vs", "resources/shaders/blur.fs");
     Shader boxShader("resources/shaders/lightBox.vs", "resources/shaders/lightBox.fs");
@@ -390,9 +389,6 @@ int main() {
     lightingShader.setInt("material.diffuse1", 0);
     lightingShader.setInt("material.specular1", 1);
 
-   // boxShader.use();
-   // boxShader.setInt("texture1", 0);
-
 
     skyboxShader.use();
     skyboxShader.setInt("skybox", 0);
@@ -532,7 +528,6 @@ int main() {
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
 
-
         lightingShader.use();
         lightingShader.setMat4("model", model);
         lightingShader.setMat4("view", view);
@@ -569,7 +564,6 @@ int main() {
         //deathstar
         model = glm::mat4(1.0f);
         model = glm:: rotate(model, (float)glfwGetTime()/2, glm::vec3(pointLightPositions[3].x, pointLightPositions[3].y + 15.0f , pointLightPositions[3].z));
-        //model = glm::translate(model, glm::vec3(10.0f, 0.0f, 30.0f));
         model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
         lightingShader.setMat4("model", model);
         deathstar.Draw(lightingShader);
@@ -592,13 +586,10 @@ int main() {
         glEnable(GL_CULL_FACE);
         boxShader.use();
         setLights(boxShader);
-       // boxShader.setFloat("material.shininess", 32.0f);
         boxShader.setMat4("projection", projection);
         boxShader.setMat4("view", view);
 
         glBindVertexArray(boxVAO);
-       // glActiveTexture(GL_TEXTURE0);
-        //glBindTexture(GL_TEXTURE_2D, boxTexture);
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(35.0f, 8.9f, 25.2f));
         model = glm::scale(model, glm::vec3(3.0f));
@@ -656,11 +647,8 @@ int main() {
         renderQuad();
 
 
-
         if (programState->ImGuiEnabled)
             DrawImGui(programState);
-
-
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
