@@ -6,37 +6,50 @@ Project for the course of [Computer Graphics](https://matf-racunarska-grafika.gi
 2. CLion -> Open -> path/to/my/project_base
 3. ALT+SHIFT+F10 -> project_base -> run
 
+
 ## Commands
 | Key     | Description |
 | :---:   | :---:       |
 | `W`, `S`, `A`, `D` | Camera movement |
 | `ESC` | Exit |
-| `SPACE` | --dopuniti-- |
-| --dopuniti-- | --dopuniti--
+| `SPACE` | Spotlight |
+| `H` | HDR |
+| `J` | Bloom |
+| `E` | Exposure+ |
+| `R` | Exposure- |
+| `B` | blinn |
+| `O` | change Box color |
+| `P` | standard Box color |
 
 ## Preview
-[video](--navesti--)
+[![YouTube video](slika)](link)
 -- dodati --
 
 ## Topics covered
 1. `Group A`
  
-   * --navesti --
+   * Cubemaps/Skybox
 2. `Group B`
 
-   * --navesti --
+   * HDR,Bloom
 3. `Required`
   
-   * --navesti --
+   * the first eight weeks of the course
+   * Blending
+   * Face culling
+   * Advanced lighting
 
 ## Models
-* 1
-* 2
-* -- navesti --
+* [Rock](https://sketchfab.com/3d-models/rock-scan-12-462ba9c87ce1445191899a6b74f4203c)
+* [Death Star](https://sketchfab.com/3d-models/death-star-ae5d6c6240aa4c1c8c9efcafc417a343)
+* [Island]()
+* [blending .png](https://pngtree.com/freepng/golden-light-effect-on-transparent-background-with-realistic-sparkles--magic-light--glowing-swirl-light-effect--vector-illustration_4769949.html)
+* [skybox .jpg](https://github.com/matf-racunarska-grafika-galerija/OpenGL_matf_project/tree/main/resources/textures)
 
 ## Resources
 * [project base](https://github.com/matf-racunarska-grafika/project_base)
 * [LearnOpenGL](https://learnopengl.com/)
+* [previous course projects](https://github.com/matf-racunarska-grafika-galerija)
 
 ## Course details
 * Professor: Vesna Marinković
