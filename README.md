@@ -18,6 +18,8 @@ Project for the course of [Computer Graphics](https://matf-racunarska-grafika.gi
 | `E` | Exposure+ |
 | `R` | Exposure- |
 | `B` | blinn |
+| `O` | change Box color |
+| `P` | standard Box color |
 
 ## Preview
 [![YouTube video](slika)](link)
