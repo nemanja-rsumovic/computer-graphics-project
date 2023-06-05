@@ -116,6 +116,7 @@ float exposure = 0.5f;
 bool spotLightTF = false;
 bool blinn = true;
 bool blinnKeyPressed = false;
+glm::vec3 lightColor = glm::vec3 (5.0f, 5.0f, 5.0f);
 
 int main() {
     // glfw: initialize and configure
@@ -179,6 +180,7 @@ int main() {
     // Blending
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glCullFace(GL_BACK);
 
     // build and compile shaders
     // -------------------------
@@ -186,9 +188,10 @@ int main() {
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
     Shader lightingShader("resources/shaders/lights.vs", "resources/shaders/lights.fs");
     Shader blendingShader( "resources/shaders/blending1.vs", "resources/shaders/blending1.fs");
-    Shader boxShader("resources/shaders/kocka.vs", "resources/shaders/kocka.fs");
+   // Shader boxShader("resources/shaders/kocka.vs", "resources/shaders/kocka.fs");
     Shader hdrShader("resources/shaders/hdr.vs", "resources/shaders/hdr.fs");
-    Shader bloomShader("resources/shaders/bloom.vs", "resources/shaders/bloom.fs");
+    Shader bloomShader("resources/shaders/blur.vs", "resources/shaders/blur.fs");
+    Shader boxShader("resources/shaders/lightBox.vs", "resources/shaders/lightBox.fs");
 
 
     // load models
@@ -218,10 +221,10 @@ int main() {
     // ------------------------------------------------------------------
     float skyboxVertices[] = {
         // positions
-        -1.0f,  1.0f, -1.0f,
-        -1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
+         -1.0f,   1.0f,  -1.0f,
+         -1.0f,  -1.0f,  -1.0f,
+          1.0f,  -1.0f,  -1.0f,
+          1.0f, -1.0f, -1.0f,
          1.0f,  1.0f, -1.0f,
         -1.0f,  1.0f, -1.0f,
 
@@ -387,8 +390,8 @@ int main() {
     lightingShader.setInt("material.diffuse1", 0);
     lightingShader.setInt("material.specular1", 1);
 
-    boxShader.use();
-    boxShader.setInt("texture1", 0);
+   // boxShader.use();
+   // boxShader.setInt("texture1", 0);
 
 
     skyboxShader.use();
@@ -586,21 +589,26 @@ int main() {
         rock.Draw(lightingShader);
 
         // box
+        glEnable(GL_CULL_FACE);
         boxShader.use();
         setLights(boxShader);
-        boxShader.setFloat("material.shininess", 32.0f);
+       // boxShader.setFloat("material.shininess", 32.0f);
         boxShader.setMat4("projection", projection);
         boxShader.setMat4("view", view);
 
         glBindVertexArray(boxVAO);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, boxTexture);
+       // glActiveTexture(GL_TEXTURE0);
+        //glBindTexture(GL_TEXTURE_2D, boxTexture);
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(35.0f, 8.9f, 25.2f));
         model = glm::scale(model, glm::vec3(3.0f));
+
+
         boxShader.setMat4("model", model);
+        boxShader.setVec3("lightColor", lightColor);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
+        glDisable(GL_CULL_FACE);
 
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
@@ -689,7 +697,6 @@ int main() {
 void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         programState->camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -828,7 +835,7 @@ void key_callback(GLFWwindow *window, int key, int __attribute__((unused))scanco
     }
 
     // bloom
-    if (key == GLFW_KEY_L && action == GLFW_PRESS){
+    if (key == GLFW_KEY_J && action == GLFW_PRESS){
         bloom = !bloom;
     }
 
@@ -836,10 +843,19 @@ void key_callback(GLFWwindow *window, int key, int __attribute__((unused))scanco
     if (key == GLFW_KEY_E && action == GLFW_PRESS){
         exposure += 0.2f;
     }
-    else if (key == GLFW_KEY_R && action == GLFW_PRESS) {
-        exposure -= 0.2f;
+    else if (key == GLFW_KEY_R && action == GLFW_PRESS){
+        if(exposure-0.2f>0)
+            exposure -= 0.2f;
     }
-     
+
+    //boxLights
+    if (key == GLFW_KEY_O && action == GLFW_PRESS){
+        lightColor = glm::vec3 (sin(glfwGetTime() * 2.5), sin(glfwGetTime() * 4.5f), sin(glfwGetTime() * 3.0f));
+
+    }
+    else if (key == GLFW_KEY_P && action == GLFW_PRESS) {
+        lightColor = glm::vec3 (5.0f, 5.0f, 5.0f);
+    }
 }
 
 // utility function for loading a 2D texture from file
