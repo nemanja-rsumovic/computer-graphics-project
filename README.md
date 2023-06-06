@@ -22,9 +22,7 @@ Project for the course of [Computer Graphics](https://matf-racunarska-grafika.gi
 | `P` | standard Box color |
 
 ## Preview
-[![YouTube video](slika)](link)
-![screenshoot1](preview/1.jpg) ![screenshoot2](preview/2.png)
-![screenshoot3](preview/3.png) ![screenshoot4](preview/4.png)
+[![YouTube video](preview/1.jpg)]([link](https://youtu.be/OqzmFeDfmS0))
 
 ## Topics covered
 1. `Group A`
