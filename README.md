@@ -1,4 +1,4 @@
-# -- konacan naziv (navesti) --
+# computer-graphics-project
 Project for the course of [Computer Graphics](https://matf-racunarska-grafika.github.io/) written in **C/C++** and **OpenGL**.
 
 ## Run
