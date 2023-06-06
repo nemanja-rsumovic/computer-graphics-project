@@ -23,8 +23,8 @@ Project for the course of [Computer Graphics](https://matf-racunarska-grafika.gi
 
 ## Preview
 [![YouTube video](slika)](link)
-![screenshoot1](preview/1.jpg) ![screenshoot2](preview/2.jpg)
-![screenshoot3](preview/3.jpg) ![screenshoot4](preview/4.jpg)
+![screenshoot1](preview/1.jpg) ![screenshoot2](preview/2.png)
+![screenshoot3](preview/3.png) ![screenshoot4](preview/4.png)
 
 ## Topics covered
 1. `Group A`
